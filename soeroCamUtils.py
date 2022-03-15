@@ -1,7 +1,5 @@
 import cv2
-'''
-Todo: add single capture, add re capture after stopping, add finish all (until release())
-'''
+
 class SoeroCam:
     def __init__(self, src=0, width=640, height=480, isMirrored=False) -> None:
         # initialize video camera stream 
