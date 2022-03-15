@@ -12,7 +12,8 @@ class SoeroCam:
         
         # dimension of outputed frame
         self.width = width
-        self.height = height        
+        self.height = height
+        assert (self.width > 0 and self.height > 0), "Width and Height must be > 0"
         
         # get the first frame
         (self.grabbed, self.frame) = self.camera.read()
