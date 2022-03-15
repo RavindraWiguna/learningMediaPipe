@@ -4,10 +4,11 @@ import time
 
 def main():
     camera = SoeroCam(src=0, width=640, height=480, isMirrored=True)
-    close_key = ord('j')
+    close_key = ord('q')
     prev_frame_time = 0
     new_frame_time = 0
     for img in camera.infiniteCapture():
+        # print(f'm:{c}')
         new_frame_time = time.time()
         fps = int(1//(new_frame_time - prev_frame_time))
         prev_frame_time = new_frame_time
@@ -18,15 +19,16 @@ def main():
             camera.stopCapture()
             cv2.destroyAllWindows()
             break
+        # time.sleep(1) ceritanya simulate ngelag di main(), ternyata print printan {c}: counter nya sama
     
-    camera.startCapture()
-    newFrame = camera.singleCapture()
-    cv2.imshow('New Frame', newFrame)
-    key = cv2.waitKey(0) & 0xFF
-    if(key):
-        print("this")
-        camera.stopCapture()
-        cv2.destroyAllWindows()
+    # camera.startCapture()
+    # newFrame = camera.singleCapture()
+    # cv2.imshow('New Frame', newFrame)
+    # key = cv2.waitKey(0) & 0xFF
+    # if(key):
+    #     print("this")
+    #     camera.stopCapture()
+    #     cv2.destroyAllWindows()
     print("End of program")
 
 
