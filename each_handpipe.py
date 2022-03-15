@@ -36,8 +36,8 @@ def main():
             for hand in results.multi_hand_landmarks: #a list of hand landmark
                 print(
                     f'Index finger tip coordinates: (',
-                    f'{hand.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x}, '
-                    f'{hand.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y})'
+                    f'{hand.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x * camera.width}, '
+                    f'{hand.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y * camera.height})'
                 )
                 mp_drawing.draw_landmarks(
                     img, 
