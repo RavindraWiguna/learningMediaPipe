@@ -5,6 +5,7 @@ class SoeroCam:
         # initialize video camera stream 
         self.src = src
         self.camera = cv2.VideoCapture(self.src)
+        # dimension of outputed frame
         self.width = width
         self.height = height
 
@@ -18,10 +19,11 @@ class SoeroCam:
         # boolean to indicate stop getting frame
         self.isCapturing = True
 
-    def getOriginalCamDim(self):
+    def getOriginalCamDim(self): # return width and height of the camera
         return self.camera.get(cv2.CAP_PROP_FRAME_WIDTH), self.camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
     
     def setOriginalCamDim(self, width: int, height: int):
+        # set width and height of the camera
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
