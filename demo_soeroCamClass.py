@@ -4,7 +4,7 @@ import time
 
 def main():
     camera = SoeroCam(src=0, width=640, height=480, isMirrored=True)
-    close_key = ord('q')
+    close_key = ord('j')
     prev_frame_time = 0
     new_frame_time = 0
     for img in camera.infiniteCapture():
@@ -18,6 +18,14 @@ def main():
             camera.stopCapture()
             break
     
+    camera.startCapture()
+    newFrame = camera.singleCapture()
+    cv2.imshow('New Frame', newFrame)
+    key = cv2.waitKey(0) & 0xFF
+    if(key):
+        print("this")
+        camera.stopCapture()
+        cv2.destroyAllWindows()
     print("End of program")
 
 
