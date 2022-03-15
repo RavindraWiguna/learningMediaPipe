@@ -3,7 +3,7 @@ import cv2
 import time
 
 def main():
-    camera = SoeroCam(src=0, width=640, height=480)
+    camera = SoeroCam(src=0, width=640, height=480, isMirrored=True)
     close_key = ord('q')
     prev_frame_time = 0
     new_frame_time = 0
