@@ -31,7 +31,6 @@ class SoeroCam:
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
     def infiniteCapture(self):
-        tw, th = 0, 0
         while self.isCapturing:
             # grab frame from camera
             (self.grabbed, self.frame) = self.camera.read()
