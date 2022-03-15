@@ -2,14 +2,21 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from soeroCamUtils import SoeroCam
+import pyttsx3 as speech
+
 
 def main():
+    # mediapipe stuff
     mp_drawing = mp.solutions.drawing_utils # helper to draw
     mp_hand = mp.solutions.hands # all hand utils
     hand_tracker = mp_hand.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands = 2) 
+    # open cv cam stuff
     camera = SoeroCam(width=960, height=720,isMirrored=True) # camera for video input
     close_key = ord('q') # what key to press to exit
     
+    #speech stuff
+    engine = speech.init()
+
     # units
     fontScale = camera.width/960
     unit_x = camera.width//32
@@ -52,11 +59,16 @@ def main():
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         # draw the results!
+        total_hand = 0
         if (results.multi_hand_landmarks):
             for hand in results.multi_hand_landmarks:#a list of hand landmark
                 mp_drawing.draw_landmarks(img, hand, mp_hand.HAND_CONNECTIONS)
-        
-        
+                total_hand+=1
+         
+        # if(total_hand<2):
+            # engine.say(f'LOST {2-total_hand} HAND')
+            # engine.runAndWait() #need threader
+            
         #add rect
         img[0: lrh, left_rect_x: left_rect_x +lrw] = left_rect
         img[0:rrh, right_rect_x: right_rect_x + rrw] = right_rect
