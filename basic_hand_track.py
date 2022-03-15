@@ -6,7 +6,7 @@ from soeroCamUtils import SoeroCam
 def main():
     mp_drawing = mp.solutions.drawing_utils # helper to draw
     mp_hand = mp.solutions.hands # all hand utils
-    hand_tracker = mp_hand.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands = 1) 
+    hand_tracker = mp_hand.Hands(min_detection_confidence=0.8, min_tracking_confidence=0.5, max_num_hands = 2) 
     
     camera = SoeroCam() # camera for video input
     close_key = ord('q') # what key to press to exit
@@ -32,7 +32,7 @@ def main():
 
         # draw the results!
         if (results.multi_hand_landmarks):
-            for hand in results.multi_hand_landmarks:
+            for hand in results.multi_hand_landmarks:#a list of hand landmark
                 mp_drawing.draw_landmarks(img, hand, mp_hand.HAND_CONNECTIONS)
         
         
