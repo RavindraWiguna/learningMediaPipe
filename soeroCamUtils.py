@@ -33,22 +33,43 @@ class SoeroCam:
         self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
+    def startCapture(self):
+        # set the boolean indicating start capturing
+        self.isCapturing=True
+        # reopen the camera if once was released
+        self.camera.open(self.src)
+
+    def stopCapture(self):
+        # set the boolean indicating stop capturing
+        self.isCapturing = False
+        # release the device I/O, and free the pointer/memory
+        self.camera.release()
+        print(f'Stopped Capturing from: {self.src}')
+    
+    def processFrame(self):
+        # process frame according to setup (mirror, width, height)
+        if(self.isMirrored):
+            self.frame = cv2.flip(self.frame, 1)
+        tw, th = self.getOriginalCamDim()
+        ratio = max(self.height/th, self.width/tw)
+        self.frame = cv2.resize(self.frame, (int(tw*ratio), int(th*ratio)))
+        self.frame = self.frame[0:self.height, 0:self.width, :]
+    
     def infiniteCapture(self):
         while self.isCapturing:
             # grab frame from camera
             (self.grabbed, self.frame) = self.camera.read()
-            # mirrored if needed
-            if(self.isMirrored):
-                self.frame = cv2.flip(self.frame, 1)
-            # get camera dimension
-            tw, th = self.getOriginalCamDim()
-            # resize frame according to dezired ratio
-            ratio = max(self.height/th, self.width/tw) 
-            self.frame = cv2.resize(self.frame, (int(tw*ratio), int(th*ratio)))
-            yield self.frame[0:self.height, 0:self.width, :]
+            # process it
+            self.processFrame()
+            yield self.frame
 
-    def stopCapture(self):
-        self.isCapturing = False
-        self.camera.release()
-        print(f'Stopped Capturing from: {self.src}')
-    
+    def singleCapture(self):
+        # exit if not capturing
+        if(not self.isCapturing):
+            return None
+        
+        # grab the frame
+        (self.grabbed, self.frame) = self.camera.read()
+        # process it
+        self.processFrame()
+        return self.frame
