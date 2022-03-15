@@ -16,6 +16,7 @@ def main():
         key = cv2.waitKey(1) & 0xFF
         if(key == close_key):
             camera.stopCapture()
+            cv2.destroyAllWindows()
             break
     
     camera.startCapture()
