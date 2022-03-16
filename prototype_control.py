@@ -23,8 +23,8 @@ def main():
     
     # rectangle ui sutff
     RECT_COLOR = (255, 193, 7)
-    left_hand_rect =createBoxWithText("LEFT HAND", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
-    right_hand_rect  =createBoxWithText("RIGHT HAND", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
+    left_hand_rect =createBoxWithText("THROTLE / YAW", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
+    right_hand_rect  =createBoxWithText("PITCH/ ROLL", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
 
     lrh, lrw,_ = left_hand_rect.shape
     rrh, rrw,_ = right_hand_rect.shape
