@@ -3,7 +3,7 @@ import numpy as np
 import mediapipe as mp
 from soeroCamUtils import SoeroCam
 import pyttsx3 as speech
-
+from mycv2 import createBoxWithText
 
 def main():
     # mediapipe stuff
@@ -11,7 +11,7 @@ def main():
     mp_hand = mp.solutions.hands # all hand utils
     hand_tracker = mp_hand.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands = 2) 
     # open cv cam stuff
-    camera = SoeroCam(width=960, height=720,isMirrored=True) # camera for video input
+    camera = SoeroCam(width=640, height=480,isMirrored=True) # camera for video input
     close_key = ord('q') # what key to press to exit
     
     #speech stuff
@@ -21,23 +21,16 @@ def main():
     fontScale = camera.width/960
     unit_x = camera.width//32
     mid_x = unit_x*16
-    font_pix = fontScale*17
-
-    # x pos of text
-    x_left = int(mid_x - font_pix*10 - font_pix*7)
-    x_right = int(mid_x+7*font_pix)
-    # y pos of text
-    y_text = camera.height//24
     
     # rectangle ui sutff
     RECT_COLOR = (255, 193, 7)
-    rect_h, rect_w = int(39*fontScale), int(font_pix*12)
-    left_rect = np.full((rect_h, rect_w,3), RECT_COLOR, np.uint8)
-    right_rect = np.full((rect_h, int(rect_w+font_pix),3), RECT_COLOR, np.uint8)
-    left_rect_x = int(x_left-font_pix)
-    right_rect_x = int(x_right-font_pix)    
-    lrh, lrw,_ = left_rect.shape
-    rrh, rrw,_ = right_rect.shape
+    left_hand_rect =createBoxWithText("LEFT HAND", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
+    right_hand_rect  =createBoxWithText("RIGHT HAND", fontScale, 2, cv2.FONT_HERSHEY_SIMPLEX, RECT_COLOR, (255, 255, 255))
+
+    lrh, lrw,_ = left_hand_rect.shape
+    rrh, rrw,_ = right_hand_rect.shape
+    left_rect_x = (mid_x - lrw)//2
+    right_rect_x = mid_x + (mid_x - rrw)//2
 
     # loop for each frame captured
     for img in camera.infiniteCapture():
@@ -70,10 +63,9 @@ def main():
             # engine.runAndWait() #need threader
             
         #add rect
-        img[0: lrh, left_rect_x: left_rect_x +lrw] = left_rect
-        img[0:rrh, right_rect_x: right_rect_x + rrw] = right_rect
-        cv2.putText(img, f'LEFT HAND', (x_left, y_text), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (255, 255, 255), 2, cv2.LINE_AA)
-        cv2.putText(img, f'RIGHT HAND', (x_right, y_text), cv2.FONT_HERSHEY_SIMPLEX, fontScale, (255, 255, 255), 2, cv2.LINE_AA)
+        img[0: lrh, left_rect_x: left_rect_x +lrw] = left_hand_rect
+        img[0:rrh, right_rect_x: right_rect_x + rrw] = right_hand_rect
+        # print(cv2.getTextSize("LEFT HAND", cv2.FONT_HERSHEY_SIMPLEX, fontScale, 2))
         cv2.line(img,(mid_x,0),(mid_x,camera.height),(255,0,0),3)
         cv2.imshow('HandTracking', img)
         key = cv2.waitKey(1) & 0xFF
