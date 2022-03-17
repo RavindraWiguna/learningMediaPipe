@@ -3,14 +3,15 @@ import mediapipe as mp
 from soeroCamUtils import SoeroCam
 import pyttsx3 as speech
 from mycv2 import createBoxWithText
+import numpy as np
 
 def main():
     # mediapipe stuff
     mp_drawing = mp.solutions.drawing_utils # helper to draw
     mp_hand = mp.solutions.hands # all hand utils
-    hand_tracker = mp_hand.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands = 1) 
+    hand_tracker = mp_hand.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands = 2) 
     # open cv cam stuff
-    camera = SoeroCam(width=960, height=720,isMirrored=True) # camera for video input
+    camera = SoeroCam(width=640, height=480,isMirrored=True) # camera for video input
     close_key = ord('q') # what key to press to exit
     
     #speech stuff
@@ -30,6 +31,8 @@ def main():
     rrh, rrw,_ = right_hand_rect.shape
     left_rect_x = (mid_x - lrw)//2
     right_rect_x = mid_x + (mid_x - rrw)//2
+
+    black_screen = np.zeros((camera.height, camera.width, 3), np.uint8)
 
     # loop for each frame captured
     for img in camera.infiniteCapture():
@@ -54,10 +57,10 @@ def main():
         total_hand = 0
         if (results.multi_hand_landmarks):
             for hand in results.multi_hand_landmarks:#a list of hand landmark
-                mp_drawing.draw_landmarks(img, hand, mp_hand.HAND_CONNECTIONS)
+                mp_drawing.draw_landmarks(black_screen, hand, mp_hand.HAND_CONNECTIONS)
                 total_hand+=1
-                print(f'{len(hand.landmark)} and type: {type(hand.landmark)}')
-                print("======1=====")
+                # print(f'{len(hand.landmark)} and type: {type(hand.landmark)}')
+                # print("======1=====")
          
         # if(total_hand<2):
             # engine.say(f'LOST {2-total_hand} HAND')
@@ -69,6 +72,8 @@ def main():
         # print(cv2.getTextSize("LEFT HAND", cv2.FONT_HERSHEY_SIMPLEX, fontScale, 2))
         cv2.line(img,(mid_x,0),(mid_x,camera.height),(255,0,0),3)
         cv2.imshow('HandTracking', img)
+        cv2.imshow('AR ceritanya', black_screen)
+        black_screen = np.zeros((camera.height, camera.width, 3), np.uint8)
         key = cv2.waitKey(1) & 0xFF
         if key == close_key:
             camera.stopCapture()
