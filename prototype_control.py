@@ -1,13 +1,10 @@
+from turtle import distance
 import cv2
 import mediapipe as mp
 from soeroCamUtils import SoeroCam
-import pyttsx3 as speech
-from mycv2 import createBoxWithText
+# import pyttsx3 as speech
+from mycv2 import calcDistance, createBoxWithText, findMiddlePoint
 import numpy as np
-
-def findMiddlePoint(point1, point2, width, height):
-    return (int((point1.x+point2.x)/2*width), int((point1.y+point2.y)/2*height),)
-
 
 def main():
     # mediapipe stuff
@@ -16,13 +13,13 @@ def main():
     mp_hands = mp.solutions.hands # all hand utils
     hand_tracker = mp_hands.Hands(min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands = 2) 
     # open cv cam stuff
-    cameraDrone = SoeroCam(width=1440, height=1080,isMirrored=False, src="/dev/video2") # camera for video input
+    cameraDrone = SoeroCam(width=1080, height=810,isMirrored=False, src=1) # camera for video input
     # print(cameraDrone.getOriginalCamDim())
     cameraWeb = SoeroCam(width=800, height=600, isMirrored=True, src=0)
     close_key = ord('q') # what key to press to exit
     
     #speech stuff
-    engine = speech.init()
+    # engine = speech.init()
 
     # units
     fontScale = cameraDrone.width/960
@@ -38,6 +35,16 @@ def main():
     rrh, rrw,_ = right_hand_rect.shape
     left_rect_x = (mid_x - lrw)//2
     right_rect_x = mid_x + (mid_x - rrw)//2
+
+    # joystick ui stuff
+    CIRCLE_COLOR = (0,184,244)
+    rectSize = 64
+    leftStickCenterPos = (mid_x//2,cameraDrone.height//2)
+    rightStickCenterPos = (mid_x + mid_x//2, cameraDrone.height//2)
+    leftStickTopPos = (leftStickCenterPos[0] - rectSize//2, leftStickCenterPos[1] - rectSize//2)
+    rightStickTopPos = (rightStickCenterPos[0] - rectSize//2, rightStickCenterPos[1] - rectSize//2)
+    
+    joyStickRect = np.full((rectSize, rectSize, 3), CIRCLE_COLOR, np.uint8)
 
     # loop for each frame captured
     for img in cameraWeb.infiniteCapture():
@@ -56,7 +63,7 @@ def main():
         # img.flags.writeable = True
 
         # convert back to BGR
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
         # get fpv frame
         fpvFrame = cameraDrone.singleCapture()
@@ -65,9 +72,15 @@ def main():
         fpvFrame[0: lrh, left_rect_x: left_rect_x +lrw] = left_hand_rect
         fpvFrame[0:rrh, right_rect_x: right_rect_x + rrw] = right_hand_rect
         # print(cv2.getTextSize("LEFT HAND", cv2.FONT_HERSHEY_SIMPLEX, fontScale, 2))
+        # add divider ui
         cv2.line(fpvFrame,(mid_x,0),(mid_x,cameraDrone.height),(255,0,0),3)
         # fpvFrame = cv2.resize(fpvFrame, (1440, 1080))
-        cv2.circle(fpvFrame,(mid_x//2,cameraDrone.height//2), 32, (0,0,255), -1)
+        
+        # add center of joystick
+        fpvFrame[leftStickTopPos[1]: leftStickTopPos[1] + rectSize, leftStickTopPos[0]: leftStickTopPos[0] + rectSize] = joyStickRect
+        fpvFrame[rightStickTopPos[1]: rightStickTopPos[1] + rectSize, rightStickTopPos[0]: rightStickTopPos[0] + rectSize] = joyStickRect
+        # cv2.circle(fpvFrame,leftStickPos, 32, CIRCLE_COLOR, -1)
+        # cv2.circle(fpvFrame,rightStickPos, 32, CIRCLE_COLOR, -1)
         
         # draw the results!
         total_hand = 0
@@ -97,10 +110,15 @@ def main():
         for i in range(total_hand):
             midPoints.append(findMiddlePoint(thumbTip[i], indexTip[i], cameraDrone.width, cameraDrone.height))
         
-        for point in midPoints:
-            # print(type(point[0]))
-            print(point)
-            cv2.line(fpvFrame, (mid_x//2,cameraDrone.height//2), point, (255, 128, 56), 3)
+        for point, isClose in midPoints:
+            if(isClose):
+                leftStickDis = calcDistance(leftStickCenterPos[0], leftStickCenterPos[1], point[0], point[1])
+                rightStickDis = calcDistance(rightStickCenterPos[0], rightStickCenterPos[1], point[0], point[1])
+                if(leftStickDis > rightStickDis):
+                    # draw on right
+                    cv2.line(fpvFrame, rightStickCenterPos, point, RECT_COLOR, 3)
+                else:
+                    cv2.line(fpvFrame, leftStickCenterPos, point, RECT_COLOR, 3)
         cv2.imshow('HandTracking', fpvFrame)
         # cv2.imshow('aaa', img)
         key = cv2.waitKey(1) & 0xFF
