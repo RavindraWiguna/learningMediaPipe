@@ -28,4 +28,4 @@ def findMiddlePoint(point1, point2, width, height):
 
     midPoint = (int(( x1 + x2 ) / 2 ), int(( y1 + y2 ) / 2 ))
 
-    return (midPoint, calcDistance(x1, y1, x2, y2) < 96.0)
+    return (midPoint, calcDistance(x1, y1, x2, y2) < 72.0)

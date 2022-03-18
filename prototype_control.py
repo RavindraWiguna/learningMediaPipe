@@ -38,13 +38,14 @@ def main():
 
     # joystick ui stuff
     CIRCLE_COLOR = (0,184,244)
-    rectSize = 64
+    rectSize = 72
     leftStickCenterPos = (mid_x//2,cameraDrone.height//2)
     rightStickCenterPos = (mid_x + mid_x//2, cameraDrone.height//2)
     leftStickTopPos = (leftStickCenterPos[0] - rectSize//2, leftStickCenterPos[1] - rectSize//2)
     rightStickTopPos = (rightStickCenterPos[0] - rectSize//2, rightStickCenterPos[1] - rectSize//2)
-    
     joyStickRect = np.full((rectSize, rectSize, 3), CIRCLE_COLOR, np.uint8)
+    colorMsg = ((0, 0, 255), (0, 0, 255), (0, 255, 0))
+    readyMsg = ("NOT READY", "NOT READY", "IS READY")
 
     # loop for each frame captured
     for img in cameraWeb.infiniteCapture():
@@ -61,7 +62,6 @@ def main():
 
         # makes img writable [noneed]
         # img.flags.writeable = True
-
         # convert back to BGR
         # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
@@ -72,6 +72,7 @@ def main():
         fpvFrame[0: lrh, left_rect_x: left_rect_x +lrw] = left_hand_rect
         fpvFrame[0:rrh, right_rect_x: right_rect_x + rrw] = right_hand_rect
         # print(cv2.getTextSize("LEFT HAND", cv2.FONT_HERSHEY_SIMPLEX, fontScale, 2))
+        
         # add divider ui
         cv2.line(fpvFrame,(mid_x,0),(mid_x,cameraDrone.height),(255,0,0),3)
         # fpvFrame = cv2.resize(fpvFrame, (1440, 1080))
@@ -100,11 +101,10 @@ def main():
                 thumbTip.append(landMark[mp_hands.HandLandmark.THUMB_TIP])
                 # print(f'{len(hand.landmark)} and type: {type(hand.landmark)}')
                 # print("======1=====")
-         
-        # if(total_hand<2):
-            # engine.say(f'LOST {2-total_hand} HAND')
-            # engine.runAndWait() #need threader
-            
+
+        # engine.say(f'LOST {2-total_hand} HAND')
+        # engine.runAndWait() #need threader
+        cv2.putText(fpvFrame, readyMsg[total_hand], (left_rect_x+lrw +20, lrh), cv2.FONT_HERSHEY_SIMPLEX, fontScale, colorMsg[total_hand], 2, cv2.LINE_AA)
         
         midPoints = []
         for i in range(total_hand):
